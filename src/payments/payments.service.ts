@@ -11,7 +11,7 @@ export class PaymentsService {
 
     async createPaymentSession(paymentSessionDto: PaymentSessionDto) {
 
-        const { currency, items } = paymentSessionDto;
+        const { currency, items, orderId } = paymentSessionDto;
 
         const lineItems = items.map(item => {
             return {
@@ -28,7 +28,9 @@ export class PaymentsService {
 
         const session = await this.stripe.checkout.sessions.create({
             payment_intent_data: {
-                metadata: {}
+                metadata: {
+                    orderId: orderId
+                }
             },
             line_items: lineItems,
             mode: 'payment',
@@ -54,6 +56,19 @@ export class PaymentsService {
         } catch (err) {
             res.status(400).send(`Webhook Error: ${err.message}`);
             return;
+        }
+
+        switch (event.type) {
+            case 'charge.succeeded':
+                const chargeSucceeded = event.data.object;
+                // TODO: Call microservice
+                console.log({
+                    metadata: chargeSucceeded.metadata
+                });
+                break;
+
+            default:
+                console.log(`Event ${event.type} not handled`);
         }
 
         return res.status(200).json({ sig });
