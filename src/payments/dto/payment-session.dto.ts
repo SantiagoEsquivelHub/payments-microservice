@@ -4,7 +4,7 @@ import { ArrayMinSize, IsArray, IsNumber, IsPositive, IsString, IsUUID, Validate
 export class PaymentSessionDto {
 
     @IsString()
-    @IsUUID()
+    // @IsUUID()
     orderId: string;
 
     @IsString()
